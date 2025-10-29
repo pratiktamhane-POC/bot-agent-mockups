@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Search - Bot-Agent System</title>
+    <link rel="stylesheet" href="styles/common.css">
+    <style>
+        .search-layout {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .search-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 0;
+        }
+        
+        .search-sidebar {
+            background: white;
+            border-right: 1px solid var(--border-color);
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .search-results {
+            background: var(--neutral-light);
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .search-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .search-section {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+        
+        .search-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .section-toggle {
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        
+        .range-inputs {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .search-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .results-header {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .results-summary {
+            color: var(--text-secondary);
+        }
+        
+        .results-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .sort-select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-chip {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .chip-remove {
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .vehicle-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .vehicle-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 120px 1fr auto;
+            gap: 1rem;
+            padding: 1rem;
+            transition: box-shadow 0.2s;
+        }
+        
+        .vehicle-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .vehicle-image {
+            width: 120px;
+            height: 80px;
+            background: var(--neutral-medium);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 2rem;
+        }
+        
+        .vehicle-info {
+            flex: 1;
+        }
+        
+        .vehicle-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .vehicle-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-item {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .vehicle-vin {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: var(--neutral-light);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .vehicle-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+        
+        .vehicle-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-available {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-sold {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-reserved {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .pagination button {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .pagination button:hover {
+            background: var(--neutral-light);
+        }
+        
+        .pagination button.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .saved-searches {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .saved-search-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .saved-search-item:hover {
+            background: var(--neutral-light);
+        }
+        
+        .saved-search-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .saved-search-count {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="search-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color);">
+                <div class="logo">VehicleBot Pro</div>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item">
+                    <a href="dashboard.html" class="sidebar-link">📊 Dashboard</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="vehicle-search.html" class="sidebar-link active">🚗 Vehicle Search</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="sales-search.html" class="sidebar-link">💰 Sales Records</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">📊 Reports</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">👥 Customers</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="settings.html" class="sidebar-link">⚙️ Settings</a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="search-main">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-content">
+                    <h1 style="font-size: 1.25rem; font-weight: 600;">Vehicle Search</h1>
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="position: relative;">
+                            <span style="font-size: 1.25rem; cursor: pointer;">🔔</span>
+                            <span style="position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center;">3</span>
+                        </div>
+                        
+                        <div class="user-profile">
+                            <div class="user-avatar">JD</div>
+                            <span>John Doe</span>
+                            <span>▼</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search Content -->
+            <div class="search-content">
+                <!-- Search Sidebar -->
+                <div class="search-sidebar">
+                    <form class="search-form">
+                        <!-- Basic Search -->
+                        <div class="search-section">
+                            <div class="section-title">
+                                Basic Search
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Year</label>
+                                <div class="range-inputs">
+                                    <select class="form-select">
+                                        <option value="">Min Year</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2022">2022</option>
+                                        <option value="2021">2021</option>
+                                        <option value="2020">2020</option>
+                                    </select>
+                                    <span>to</span>
+                                    <select class="form-select">
+                                        <option value="">Max Year</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2022">2022</option>
+                                        <option value="2021">2021</option>
+                                        <option value="2020">2020</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Make</label>
+                                <select class="form-select">
+                                    <option value="">Select Make</option>
+                                    <option value="honda">Honda</option>
+                                    <option value="toyota">Toyota</option>
+                                    <option value="ford">Ford</option>
+                                    <option value="chevrolet">Chevrolet</option>
+                                    <option value="nissan">Nissan</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Model</label>
+                                <select class="form-select">
+                                    <option value="">Select Model</option>
+                                    <option value="civic">Civic</option>
+                                    <option value="accord">Accord</option>
+                                    <option value="camry">Camry</option>
+                                    <option value="corolla">Corolla</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Mileage Range</label>
+                                <div class="range-inputs">
+                                    <input type="number" class="form-input" placeholder="Min">
+                                    <span>to</span>
+                                    <input type="number" class="form-input" placeholder="Max">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Advanced Search -->
+                        <div class="search-section">
+                            <div class="section-title">
+                                Advanced Search
+                                <span class="section-toggle">▼</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">VIN</label>
+                                <input type="text" class="form-input" placeholder="Enter VIN">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">License Plate</label>
+                                <input type="text" class="form-input" placeholder="Enter license plate">
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Color</label>
+                                    <select class="form-select">
+                                        <option value="">Any Color</option>
+                                        <option value="black">Black</option>
+                                        <option value="white">White</option>
+                                        <option value="silver">Silver</option>
+                                        <option value="red">Red</option>
+                                        <option value="blue">Blue</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Transmission</label>
+                                    <select class="form-select">
+                                        <option value="">Any</option>
+                                        <option value="automatic">Automatic</option>
+                                        <option value="manual">Manual</option>
+                                        <option value="cvt">CVT</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Engine Type</label>
+                                <select class="form-select">
+                                    <option value="">Any Engine</option>
+                                    <option value="4-cylinder">4-Cylinder</option>
+                                    <option value="6-cylinder">6-Cylinder</option>
+                                    <option value="8-cylinder">8-Cylinder</option>
+                                    <option value="hybrid">Hybrid</option>
+                                    <option value="electric">Electric</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Search Actions -->
+                        <div class="search-actions">
+                            <button type="submit" class="btn btn-primary">Search Vehicles</button>
+                            <button type="button" class="btn btn-secondary">Clear All</button>
+                            <button type="button" class="btn btn-secondary">Save Search</button>
+                        </div>
+                    </form>
+                    
+                    <!-- Saved Searches -->
+                    <div class="saved-searches">
+                        <div class="section-title">Saved Searches</div>
+                        <div class="saved-search-item">
+                            <div>
+                                <div class="saved-search-name">Honda Civics 2020+</div>
+                                <div class="saved-search-count">23 results</div>
+                            </div>
+                        </div>
+                        <div class="saved-search-item">
+                            <div>
+                                <div class="saved-search-name">Low Mileage Toyotas</div>
+                                <div class="saved-search-count">45 results</div>
+                            </div>
+                        </div>
+                        <div class="saved-search-item">
+                            <div>
+                                <div class="saved-search-name">Electric Vehicles</div>
+                                <div class="saved-search-count">12 results</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Search Results -->
+                <div class="search-results">
+                    <!-- Results Header -->
+                    <div class="results-header">
+                        <div>
+                            <div class="results-summary">147 vehicles found in 0.23 seconds</div>
+                        </div>
+                        <div class="results-controls">
+                            <label>Sort by:</label>
+                            <select class="sort-select">
+                                <option value="year">Year (Newest)</option>
+                                <option value="mileage">Mileage (Lowest)</option>
+                                <option value="make">Make (A-Z)</option>
+                                <option value="price">Price (Lowest)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Active Filters -->
+                    <div class="filter-chips">
+                        <div class="filter-chip">
+                            Make: Honda
+                            <span class="chip-remove">×</span>
+                        </div>
+                        <div class="filter-chip">
+                            Year: 2020-2024
+                            <span class="chip-remove">×</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Vehicle Results -->
+                    <div class="vehicle-grid">
+                        <!-- Vehicle Card 1 -->
+                        <div class="vehicle-card">
+                            <div class="vehicle-image">🚗</div>
+                            <div class="vehicle-info">
+                                <div class="vehicle-title">2023 Honda Civic LX</div>
+                                <div class="vehicle-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Mileage:</span> 15,432 mi
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Engine:</span> 2.0L 4-Cyl
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Trans:</span> CVT
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Color:</span> Silver
+                                    </div>
+                                </div>
+                                <div class="vehicle-vin">VIN: 1HGBH41JXMN109186</div>
+                            </div>
+                            <div class="vehicle-actions">
+                                <div class="vehicle-status status-available">Available</div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary btn-sm" onclick="window.location.href='vehicle-details.html'">View Details</button>
+                                    <button class="btn btn-secondary btn-sm">Bookmark</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Vehicle Card 2 -->
+                        <div class="vehicle-card">
+                            <div class="vehicle-image">🚗</div>
+                            <div class="vehicle-info">
+                                <div class="vehicle-title">2022 Honda Accord Sport</div>
+                                <div class="vehicle-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Mileage:</span> 28,901 mi
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Engine:</span> 1.5L Turbo
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Trans:</span> CVT
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Color:</span> Black
+                                    </div>
+                                </div>
+                                <div class="vehicle-vin">VIN: 1HGCV1F3XNA004567</div>
+                            </div>
+                            <div class="vehicle-actions">
+                                <div class="vehicle-status status-sold">Sold</div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary btn-sm">View Details</button>
+                                    <button class="btn btn-secondary btn-sm">Bookmark</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Vehicle Card 3 -->
+                        <div class="vehicle-card">
+                            <div class="vehicle-image">🚗</div>
+                            <div class="vehicle-info">
+                                <div class="vehicle-title">2021 Honda CR-V EX</div>
+                                <div class="vehicle-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Mileage:</span> 42,156 mi
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Engine:</span> 1.5L Turbo
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Trans:</span> CVT
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Color:</span> White
+                                    </div>
+                                </div>
+                                <div class="vehicle-vin">VIN: 2HKRW2H85MH123456</div>
+                            </div>
+                            <div class="vehicle-actions">
+                                <div class="vehicle-status status-reserved">Reserved</div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary btn-sm">View Details</button>
+                                    <button class="btn btn-secondary btn-sm">Bookmark</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- More vehicle cards would continue here... -->
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="pagination">
+                        <button>← Previous</button>
+                        <button class="active">1</button>
+                        <button>2</button>
+                        <button>3</button>
+                        <button>4</button>
+                        <button>5</button>
+                        <button>Next →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simple form interaction demo
+        document.querySelector('.search-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Search functionality would filter results');
+        });
+        
+        // Toggle advanced search
+        document.querySelector('.section-toggle').addEventListener('click', function() {
+            const section = this.closest('.search-section');
+            const isCollapsed = this.textContent === '▶';
+            this.textContent = isCollapsed ? '▼' : '▶';
+            // In real implementation, would toggle section visibility
+        });
+    </script>
+</body>
+</html>

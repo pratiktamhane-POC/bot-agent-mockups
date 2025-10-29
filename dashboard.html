@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bot-Agent System</title>
+    <link rel="stylesheet" href="styles/common.css">
+    <style>
+        .dashboard-layout {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .dashboard-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .dashboard-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: var(--neutral-light);
+        }
+        
+        .welcome-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .welcome-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .action-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .action-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .action-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        
+        .recent-activity {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .activity-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .activity-list {
+            padding: 1rem;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .system-status {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .status-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .status-list {
+            padding: 1rem;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-healthy { background: var(--accent-color); }
+        .status-warning { background: #f59e0b; }
+        .status-error { background: #ef4444; }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .global-search {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 2rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color);">
+                <div class="logo">VehicleBot Pro</div>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item">
+                    <a href="dashboard.html" class="sidebar-link active">📊 Dashboard</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="vehicle-search.html" class="sidebar-link">🚗 Vehicle Search</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="sales-search.html" class="sidebar-link">💰 Sales Records</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">📊 Reports</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">👥 Customers</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="settings.html" class="sidebar-link">⚙️ Settings</a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="dashboard-main">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-content">
+                    <div class="global-search">
+                        <input type="text" class="search-input" placeholder="Search vehicles, customers, or sales records...">
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="position: relative;">
+                            <span style="font-size: 1.25rem; cursor: pointer;">🔔</span>
+                            <span style="position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center;">3</span>
+                        </div>
+                        
+                        <div class="user-profile">
+                            <div class="user-avatar">JD</div>
+                            <span>John Doe</span>
+                            <span>▼</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Welcome Section -->
+                <div class="welcome-section">
+                    <div class="welcome-title">Welcome back, John!</div>
+                    <div class="welcome-subtitle">Last login: Today at 9:15 AM</div>
+                    <div style="display: flex; gap: 2rem; margin-top: 1rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--primary-color);">247</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Searches Today</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--accent-color);">1,432</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Total Vehicles</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: #f59e0b;">89</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Pending Sales</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="action-card" onclick="window.location.href='vehicle-search.html'">
+                        <div class="action-icon">🔍</div>
+                        <div class="action-title">Vehicle Search</div>
+                        <div class="action-description">Find vehicles by make, model, year, or VIN</div>
+                    </div>
+                    
+                    <div class="action-card" onclick="window.location.href='sales-search.html'">
+                        <div class="action-icon">💰</div>
+                        <div class="action-title">Sales Lookup</div>
+                        <div class="action-description">Search by check or order number</div>
+                    </div>
+                    
+                    <div class="action-card">
+                        <div class="action-icon">📋</div>
+                        <div class="action-title">Recent Searches</div>
+                        <div class="action-description">View your search history</div>
+                    </div>
+                    
+                    <div class="action-card">
+                        <div class="action-icon">⭐</div>
+                        <div class="action-title">Bookmarks</div>
+                        <div class="action-description">Access saved vehicles and customers</div>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Recent Activity -->
+                    <div class="recent-activity">
+                        <div class="activity-header">
+                            <h3>Recent Activity</h3>
+                        </div>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon">🔍</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Vehicle search: 2020 Honda Civic</div>
+                                    <div class="activity-time">2 minutes ago</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">💰</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Sales record lookup: CHK-2024-001</div>
+                                    <div class="activity-time">15 minutes ago</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">👤</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Customer profile viewed: Sarah Johnson</div>
+                                    <div class="activity-time">1 hour ago</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">📊</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Monthly report generated</div>
+                                    <div class="activity-time">3 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">🔍</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Vehicle search: Toyota Camry 2019</div>
+                                    <div class="activity-time">5 hours ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- System Status -->
+                    <div class="system-status">
+                        <div class="status-header">
+                            <h3>System Status</h3>
+                        </div>
+                        <div class="status-list">
+                            <div class="status-item">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="status-indicator status-healthy"></div>
+                                    <span>Database</span>
+                                </div>
+                                <span class="badge badge-success">Online</span>
+                            </div>
+                            <div class="status-item">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="status-indicator status-healthy"></div>
+                                    <span>Bot System</span>
+                                </div>
+                                <span class="badge badge-success">Active</span>
+                            </div>
+                            <div class="status-item">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="status-indicator status-warning"></div>
+                                    <span>Agent System</span>
+                                </div>
+                                <span class="badge badge-warning">Busy</span>
+                            </div>
+                            <div class="status-item">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="status-indicator status-healthy"></div>
+                                    <span>API Gateway</span>
+                                </div>
+                                <span class="badge badge-success">Online</span>
+                            </div>
+                            <div class="status-item">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="status-indicator status-healthy"></div>
+                                    <span>Response Time</span>
+                                </div>
+                                <span style="font-size: 0.875rem; color: var(--text-secondary);">142ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

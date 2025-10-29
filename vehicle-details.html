@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Details - Bot-Agent System</title>
+    <link rel="stylesheet" href="styles/common.css">
+    <style>
+        .details-layout {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .details-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .details-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: var(--neutral-light);
+        }
+        
+        .vehicle-header {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: 300px 1fr auto;
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        .vehicle-gallery {
+            position: relative;
+        }
+        
+        .main-image {
+            width: 300px;
+            height: 200px;
+            background: var(--neutral-medium);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .thumbnail-nav {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+        }
+        
+        .thumbnail {
+            width: 60px;
+            height: 40px;
+            background: var(--neutral-medium);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            border: 2px solid transparent;
+        }
+        
+        .thumbnail.active {
+            border-color: var(--primary-color);
+        }
+        
+        .vehicle-summary {
+            flex: 1;
+        }
+        
+        .vehicle-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .vehicle-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .key-specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .spec-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--neutral-light);
+            border-radius: 8px;
+        }
+        
+        .spec-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+        
+        .spec-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .vehicle-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .tabbed-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--neutral-light);
+        }
+        
+        .tab-button {
+            padding: 1rem 2rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            background: white;
+        }
+        
+        .tab-button:hover {
+            color: var(--primary-color);
+        }
+        
+        .tab-content {
+            padding: 2rem;
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .spec-section {
+            background: var(--neutral-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        
+        .spec-section-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .spec-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .spec-name {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .spec-value-text {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .history-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 1rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            background: var(--neutral-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -2.25rem;
+            top: 1.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--border-color);
+        }
+        
+        .timeline-date {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .timeline-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .sales-summary {
+            background: var(--neutral-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .sales-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .sales-stat {
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .sales-stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+        
+        .sales-stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .document-card {
+            background: var(--neutral-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .document-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .document-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .document-name {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .document-size {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="details-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color);">
+                <div class="logo">VehicleBot Pro</div>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item">
+                    <a href="dashboard.html" class="sidebar-link">📊 Dashboard</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="vehicle-search.html" class="sidebar-link active">🚗 Vehicle Search</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="sales-search.html" class="sidebar-link">💰 Sales Records</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">📊 Reports</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">👥 Customers</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="settings.html" class="sidebar-link">⚙️ Settings</a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="details-main">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-content">
+                    <div class="breadcrumb">
+                        <a href="dashboard.html">Dashboard</a>
+                        <span>›</span>
+                        <a href="vehicle-search.html">Vehicle Search</a>
+                        <span>›</span>
+                        <span>2023 Honda Civic LX</span>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="position: relative;">
+                            <span style="font-size: 1.25rem; cursor: pointer;">🔔</span>
+                            <span style="position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center;">3</span>
+                        </div>
+                        
+                        <div class="user-profile">
+                            <div class="user-avatar">JD</div>
+                            <span>John Doe</span>
+                            <span>▼</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vehicle Details Content -->
+            <div class="details-content">
+                <!-- Vehicle Header -->
+                <div class="vehicle-header">
+                    <!-- Image Gallery -->
+                    <div class="vehicle-gallery">
+                        <div class="main-image">🚗</div>
+                        <div class="thumbnail-nav">
+                            <div class="thumbnail active">🚗</div>
+                            <div class="thumbnail">📷</div>
+                            <div class="thumbnail">📷</div>
+                            <div class="thumbnail">📷</div>
+                            <div class="thumbnail">📷</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Vehicle Summary -->
+                    <div class="vehicle-summary">
+                        <div class="vehicle-title">2023 Honda Civic LX</div>
+                        <div class="vehicle-subtitle">VIN: 1HGBH41JXMN109186</div>
+                        
+                        <div class="key-specs">
+                            <div class="spec-item">
+                                <div class="spec-value">15,432</div>
+                                <div class="spec-label">Miles</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-value">2.0L</div>
+                                <div class="spec-label">Engine</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-value">CVT</div>
+                                <div class="spec-label">Transmission</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-value">Silver</div>
+                                <div class="spec-label">Color</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="vehicle-actions">
+                        <div class="status-badge status-available">Available</div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary">Edit Vehicle</button>
+                            <button class="btn btn-secondary">Print Details</button>
+                            <button class="btn btn-secondary">Export PDF</button>
+                            <button class="btn btn-secondary">Add Bookmark</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tabbed Content -->
+                <div class="tabbed-content">
+                    <!-- Tab Navigation -->
+                    <div class="tab-nav">
+                        <button class="tab-button active" data-tab="specifications">Specifications</button>
+                        <button class="tab-button" data-tab="history">History</button>
+                        <button class="tab-button" data-tab="sales">Sales</button>
+                        <button class="tab-button" data-tab="documents">Documents</button>
+                    </div>
+                    
+                    <!-- Specifications Tab -->
+                    <div class="tab-content active" id="specifications">
+                        <div class="specs-grid">
+                            <!-- Engine & Performance -->
+                            <div class="spec-section">
+                                <div class="spec-section-title">Engine & Performance</div>
+                                <div class="spec-list">
+                                    <div class="spec-row">
+                                        <span class="spec-name">Engine</span>
+                                        <span class="spec-value-text">2.0L 4-Cylinder</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Horsepower</span>
+                                        <span class="spec-value-text">158 hp @ 6,500 rpm</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Torque</span>
+                                        <span class="spec-value-text">138 lb-ft @ 4,200 rpm</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Transmission</span>
+                                        <span class="spec-value-text">CVT Automatic</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Drivetrain</span>
+                                        <span class="spec-value-text">Front-Wheel Drive</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Fuel Economy -->
+                            <div class="spec-section">
+                                <div class="spec-section-title">Fuel Economy</div>
+                                <div class="spec-list">
+                                    <div class="spec-row">
+                                        <span class="spec-name">City MPG</span>
+                                        <span class="spec-value-text">31 mpg</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Highway MPG</span>
+                                        <span class="spec-value-text">40 mpg</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Combined MPG</span>
+                                        <span class="spec-value-text">35 mpg</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Fuel Tank</span>
+                                        <span class="spec-value-text">12.4 gallons</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Dimensions -->
+                            <div class="spec-section">
+                                <div class="spec-section-title">Dimensions</div>
+                                <div class="spec-list">
+                                    <div class="spec-row">
+                                        <span class="spec-name">Length</span>
+                                        <span class="spec-value-text">184.0 in</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Width</span>
+                                        <span class="spec-value-text">70.9 in</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Height</span>
+                                        <span class="spec-value-text">55.7 in</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Wheelbase</span>
+                                        <span class="spec-value-text">107.7 in</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Curb Weight</span>
+                                        <span class="spec-value-text">2,906 lbs</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Features -->
+                            <div class="spec-section">
+                                <div class="spec-section-title">Standard Features</div>
+                                <div class="spec-list">
+                                    <div class="spec-row">
+                                        <span class="spec-name">Honda Sensing Suite</span>
+                                        <span class="spec-value-text">✓ Standard</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">7" Touchscreen</span>
+                                        <span class="spec-value-text">✓ Standard</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Apple CarPlay/Android Auto</span>
+                                        <span class="spec-value-text">✓ Standard</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">Automatic Climate Control</span>
+                                        <span class="spec-value-text">✓ Standard</span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-name">LED Headlights</span>
+                                        <span class="spec-value-text">✓ Standard</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- History Tab -->
+                    <div class="tab-content" id="history">
+                        <div class="history-timeline">
+                            <div class="timeline-line"></div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-date">March 15, 2024</div>
+                                <div class="timeline-title">Oil Change Service</div>
+                                <div class="timeline-description">
+                                    Regular maintenance performed at Honda Service Center. 
+                                    Oil changed, filters replaced, 47-point inspection completed.
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-date">January 8, 2024</div>
+                                <div class="timeline-title">Registration Renewal</div>
+                                <div class="timeline-description">
+                                    Vehicle registration renewed for 2024. All fees paid, 
+                                    emissions test passed.
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-date">September 22, 2023</div>
+                                <div class="timeline-title">Tire Rotation</div>
+                                <div class="timeline-description">
+                                    Routine tire rotation and alignment check performed. 
+                                    All tires in good condition.
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-date">June 10, 2023</div>
+                                <div class="timeline-title">Vehicle Purchase</div>
+                                <div class="timeline-description">
+                                    Vehicle purchased from Honda dealership. Original owner, 
+                                    full warranty coverage active.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sales Tab -->
+                    <div class="tab-content" id="sales">
+                        <div class="sales-summary">
+                            <h3 style="margin-bottom: 1rem;">Sales Summary</h3>
+                            <div class="sales-grid">
+                                <div class="sales-stat">
+                                    <div class="sales-stat-value">$24,500</div>
+                                    <div class="sales-stat-label">Current Value</div>
+                                </div>
+                                <div class="sales-stat">
+                                    <div class="sales-stat-value">$28,900</div>
+                                    <div class="sales-stat-label">Original MSRP</div>
+                                </div>
+                                <div class="sales-stat">
+                                    <div class="sales-stat-value">$26,200</div>
+                                    <div class="sales-stat-label">Purchase Price</div>
+                                </div>
+                                <div class="sales-stat">
+                                    <div class="sales-stat-value">-$1,700</div>
+                                    <div class="sales-stat-label">Depreciation</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Sales Records</h4>
+                            </div>
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>Amount</th>
+                                            <th>Customer</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>June 10, 2023</td>
+                                            <td>New Vehicle Sale</td>
+                                            <td>$26,200</td>
+                                            <td>Sarah Johnson</td>
+                                            <td><span class="badge badge-success">Completed</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Documents Tab -->
+                    <div class="tab-content" id="documents">
+                        <div class="document-grid">
+                            <div class="document-card">
+                                <div class="document-icon">📄</div>
+                                <div class="document-name">Vehicle Title</div>
+                                <div class="document-size">PDF • 245 KB</div>
+                            </div>
+                            
+                            <div class="document-card">
+                                <div class="document-icon">📋</div>
+                                <div class="document-name">Registration</div>
+                                <div class="document-size">PDF • 156 KB</div>
+                            </div>
+                            
+                            <div class="document-card">
+                                <div class="document-icon">🔧</div>
+                                <div class="document-name">Service Records</div>
+                                <div class="document-size">PDF • 892 KB</div>
+                            </div>
+                            
+                            <div class="document-card">
+                                <div class="document-icon">📊</div>
+                                <div class="document-name">Inspection Report</div>
+                                <div class="document-size">PDF • 1.2 MB</div>
+                            </div>
+                            
+                            <div class="document-card">
+                                <div class="document-icon">📷</div>
+                                <div class="document-name">Vehicle Photos</div>
+                                <div class="document-size">ZIP • 15.3 MB</div>
+                            </div>
+                            
+                            <div class="document-card">
+                                <div class="document-icon">🛡️</div>
+                                <div class="document-name">Warranty Info</div>
+                                <div class="document-size">PDF • 324 KB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+            });
+        });
+        
+        // Thumbnail navigation
+        document.querySelectorAll('.thumbnail').forEach(thumb => {
+            thumb.addEventListener('click', function() {
+                document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                // In real implementation, would change main image
+            });
+        });
+    </script>
+</body>
+</html>
